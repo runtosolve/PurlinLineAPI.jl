@@ -1,0 +1,21 @@
+name = "PurlinLineAPI"
+uuid = "2941c451-0638-4735-a344-edafee7edf7f"
+authors = ["Cris Moen <54078289+cristophermoen@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+AISIS100 = "01f7396e-a581-4110-84fa-e8964400bef8"
+CUFSM = "82b4978f-06ae-48e0-88e8-a26b4f7a0fa1"
+CrossSection = "a0443d1a-7a62-4d3d-b993-57eb2183b07a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+InternalForces = "0ac833a1-d586-4577-9e6b-83a7c69b6692"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+LinesCurvesNodes = "74a74c3a-221d-4cd1-a4eb-c3c8149e7592"
+PurlinLine = "720b0b74-7d22-47cf-9c9b-19f6078eb386"
+ScrewConnections = "5bf228db-695e-4268-9ee9-a0e568bd4ab1"
+SectionProperties = "03320fb2-42b0-43fd-9b66-b95dbaa39193"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
+StructTypes = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
+ThinWalledBeam = "1c93ddf5-a21f-4e01-8bde-98213f7f7d54"
+ThinWalledBeamColumn = "79be238d-76c4-453b-a7f7-71368c01feb5"
+URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
