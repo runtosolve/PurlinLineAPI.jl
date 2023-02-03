@@ -20,13 +20,22 @@ bridging_locations =[ ]
 inputs = PurlinLine.Inputs(loading_direction, design_code, segments, spacing, roof_slope, cross_section_dimensions, material_properties, deck_details, deck_material_properties, frame_flange_width, support_locations, purlin_frame_connections, bridging_locations)
 inputs_json = JSON3.write(inputs)
 
+open("/Users/crismoen/.julia/dev/PurlinLineAPI/test/INPUT.json", "w") do io
+    JSON3.write(io, inputs)
+end
 
 url = URI(scheme="http", host="127.0.0.1", port="8080",path = "/api/purlin_line")
 
 
 resp = HTTP.post(url, [], inputs_json)
 
-# cdm_1 = JSON3.read(resp.body)
+output = JSON3.read(resp.body)
+
+open("/Users/crismoen/.julia/dev/PurlinLineAPI/test/OUTPUT.json", "w") do io
+    JSON3.write(io, output)
+end
+
+
 
 # # close the server which will stop the HTTP server from listening
 # close(server)
