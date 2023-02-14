@@ -2,7 +2,7 @@
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "beaf2b178a50bcac2f92af6636608a7799b3dd24"
+project_hash = "6ecaf511e9f068c563f14f239bc0cf1be723ccff"
 
 [[deps.AISIS100]]
 deps = ["CSV", "DataFrames", "Unitful", "UnitfulUS"]
@@ -1123,6 +1123,12 @@ git-tree-sha1 = "ec666ae0df989b313d06e25ba8cc6c1069ba467f"
 repo-rev = "main"
 repo-url = "https://github.com/runtosolve/PurlinLine.jl.git"
 uuid = "720b0b74-7d22-47cf-9c9b-19f6078eb386"
+version = "0.1.0"
+
+[[deps.PurlinLineAPI]]
+deps = ["AISIS100", "CUFSM", "CrossSection", "HTTP", "InternalForces", "JSON3", "LinesCurvesNodes", "PurlinLine", "ScrewConnections", "Sockets", "StructTypes", "ThinWalledBeam", "ThinWalledBeamColumn", "URIs"]
+path = "/Users/crismoen/.julia/dev/PurlinLineAPI"
+uuid = "2941c451-0638-4735-a344-edafee7edf7f"
 version = "0.1.0"
 
 [[deps.Qt5Base_jll]]

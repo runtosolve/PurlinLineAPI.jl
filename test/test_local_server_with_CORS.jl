@@ -1,4 +1,4 @@
-using PurlinLine, URIs, HTTP, JSON3 
+using PurlinLine, URIs, HTTP, JSON3, PurlinLineAPI 
 
 
 loading_direction = "gravity"
@@ -30,7 +30,13 @@ bridging_locations =[ ]
 inputs = PurlinLine.Inputs(loading_direction, design_code, segments, spacing, roof_slope, cross_section_dimensions, material_properties, deck_details, deck_material_properties, frame_flange_width, support_locations, purlin_frame_connections, bridging_locations)
 inputs_json = JSON3.write(inputs)
 
+PurlinLineAPI.run(ip_address="127.0.0.1")
 
-url = URI(scheme="http", host="157.245.87.161", port="8080", path="/api/purlin_line")
 
+url = URI(scheme="http", host="127.0.0.1", port="8080",path = "/api/purlin_line")
 resp = HTTP.post(url, [], inputs_json)
+
+
+
+
+
