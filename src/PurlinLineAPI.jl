@@ -45,20 +45,29 @@ end
 
 
 #add route 
-HTTP.register!(ROUTER, "POST", "/api/purlin_line", request_response)
+HTTP.register!(ROUTER, "POST", "/api/purlinline", request_response)
 
 # CORS handlers for error responses
 cors404(::HTTP.Request) = HTTP.Response(404, CORS_RES_HEADERS, "")
 cors405(::HTTP.Request) = HTTP.Response(405, CORS_RES_HEADERS, "")
 
 
-function run(;ip_address)
+# function run(;ip_address)
 
-    server = HTTP.serve!(ROUTER |> CorsMiddleware, parse(IPAddr, ip_address), 8080)
+#     server = HTTP.serve!(ROUTER |> CorsMiddleware, parse(IPAddr, ip_address), 8080)
+
+#     return server
+
+# end
+
+function run()
+
+    server = HTTP.serve!(ROUTER |> CorsMiddleware, Sockets.localhost, 8080)
 
     return server
 
 end
+
 
 
 end # module PurlinLineAPI
