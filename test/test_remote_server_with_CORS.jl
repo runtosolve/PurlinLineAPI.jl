@@ -1,6 +1,6 @@
 using PurlinLine, URIs, HTTP, JSON3 
 
-
+#inputs
 loading_direction = "gravity"
 design_code = "AISI S100-16 ASD"
 segments = [(25.0*12, 25.0, 1, 1)]
@@ -15,24 +15,15 @@ support_locations = [0.0, 25.0*12]
 purlin_frame_connections = "bottom flange connection"
 bridging_locations =[ ]
 
-# using Pkg 
-# Pkg.add(url="https://github.com/runtosolve/AISIS100.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/LinesCurvesNodes.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/CUFSM.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/CrossSection.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/ThinWalledBeam.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/ThinWalledBeamColumn.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/InternalForces.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/ScrewConnections.jl.git")
-# Pkg.add(url="https://github.com/runtosolve/PurlinLine.jl.git")
-
-
+#package up inputs 
 inputs = PurlinLine.Inputs(loading_direction, design_code, segments, spacing, roof_slope, cross_section_dimensions, material_properties, deck_details, deck_material_properties, frame_flange_width, support_locations, purlin_frame_connections, bridging_locations)
+
+#convert inputs to JSON
 inputs_json = JSON3.write(inputs)
 
+#send JSON to VM serice, run simulated test of purlin line to failure
+url = URI(scheme="https", host="purlinline.runtosolve.com", port="443", path="/api/purlinline")
+resp = HTTP.post(url, require_ssl_verification=false, [], inputs_json)
 
-url = URI(scheme="http", host="157.245.87.161", port="8080", path="/api/purlin_line")
-
-resp = HTTP.post(url, [], inputs_json)
-
-
+#translate response as solution output, get test results  
+output = JSON3.read(resp.body)
