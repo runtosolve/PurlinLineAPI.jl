@@ -1,6 +1,8 @@
 module PurlinLineAPISimple
 
 using HTTP, JSON3, Sockets, StructTypes
+using Pkg, CSV, DataFrames, PurlinLine
+
 
 # Define input struct
 mutable struct PurlinLineData
@@ -18,6 +20,28 @@ mutable struct PurlinLineData
 end
 
 StructTypes.StructType(::Type{PurlinLineData}) = StructTypes.Mutable()
+
+purlin_data_path = joinpath(pkgdir(PurlinLine), "database", "Purlins.csv")
+deck_data_path = joinpath(pkgdir(PurlinLine), "database", "Existing_Deck.csv")
+purlin_data = CSV.read(purlin_data_path, DataFrame);
+deck_data = CSV.read(deck_data_path, DataFrame);
+
+function runAnalysis(data::PurlinLineData)
+  purlin_types = data.purlin_types
+  purlin_spans = data.purlin_spans  #ft
+  purlin_size_span_assignment = data.purlin_size_span_assignment
+  purlin_laps = data.purlin_laps
+  purlin_spacing = data.purlin_spacing
+  frame_flange_width = data.frame_flange_width
+  roof_slope = data.roof_slope
+  deck_type = data.deck_type
+  
+  analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment);
+  
+  return analysisResult
+
+end
+
 
 # Define CORS headers
 const CORS_OPT_HEADERS = [
@@ -46,7 +70,10 @@ end
 # Define API handlers
 function submitJob(req::HTTP.Request)
   data = JSON3.read(req.body, PurlinLineData)
-  res = HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(data))
+
+  output = runAnalysis(data)
+
+  res = HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(output))
 
   return res
 end
@@ -61,32 +88,3 @@ end
 
 
 end # PurlinLineAPISimple
-
-using CSV, DataFrames
-
-purlin_data = CSV.read("/Users/crismoen/.julia/dev/PurlinLine/database/Purlins.csv", DataFrame);
-
-deck_data = CSV.read("/Users/crismoen/.julia/dev/PurlinLine/database/Existing_Deck.csv", DataFrame);
-
-
-using PurlinLine
-
-
-purlin_types = ["Z8x2.5 060"]
-
-purlin_spans = tuple(ones(Float64, 4) .* 25.0...)  #ft
-
-purlin_size_span_assignment = tuple(ones(Int, 8)...)
-
-purlin_laps = tuple(ones(Float64, 3*2) .* 18.0/12...)
-
-purlin_spacing = 5.0  #ft
-
-frame_flange_width = 6.0  #in
-
-roof_slope = 1.0/12
-
-deck_type = "SSR Ultra-Dek 18 in. 24 ga";
-
-purlin_line_gravity = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment);
-
