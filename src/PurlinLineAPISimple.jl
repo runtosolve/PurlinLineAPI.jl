@@ -19,6 +19,14 @@ mutable struct PurlinLineData
 
 end
 
+mutable struct PurlinLineOutput
+  max_load::Float64
+  failure_location::Float64
+
+  PurlinLineOutput() = new()
+end
+
+
 StructTypes.StructType(::Type{PurlinLineData}) = StructTypes.Mutable()
 
 purlin_data_path = joinpath(pkgdir(PurlinLine), "database", "Purlins.csv")
@@ -38,7 +46,11 @@ function runAnalysis(data::PurlinLineData)
   
   analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment);
   
-  return analysisResult
+  output = PurlinLineOutput()
+  output.max_load = analysisResult.applied_pressure
+  output.failure_location = analysisResult.failure_location
+
+  return output
 
 end
 
