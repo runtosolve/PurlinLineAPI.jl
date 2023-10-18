@@ -1,8 +1,3 @@
-name = "PurlinLineAPI"
-uuid = "2941c451-0638-4735-a344-edafee7edf7f"
-authors = ["Cris Moen <54078289+cristophermoen@users.noreply.github.com>"]
-version = "0.1.0"
-
 [deps]
 AISIS100 = "01f7396e-a581-4110-84fa-e8964400bef8"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
