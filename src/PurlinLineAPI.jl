@@ -1,4 +1,4 @@
-module SimpleServer
+module PurlinLineAPI
 
 using HTTP, JSON3, Sockets, StructTypes
 using Pkg, CSV, DataFrames, PurlinLine
@@ -20,6 +20,7 @@ mutable struct PurlinLineData
   frame_flange_width::Float64
   roof_slope::Float64
   deck_type::String
+  loading_directcion::String
 
   PurlinLineData() = new()
 
@@ -51,8 +52,9 @@ function runAnalysis(data::PurlinLineData)
   frame_flange_width = data.frame_flange_width
   roof_slope = data.roof_slope
   deck_type = data.deck_type
+  loading_direction = data.loading_direction
   
-  analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment);
+  analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment, loading_direction);
   
   output = PurlinLineOutput()
   output.applied_pressure = analysisResult.applied_pressure
@@ -102,6 +104,7 @@ function serve()
   return server
 end
 
-end # module SimpleServer
+end # module PurlinLineAPI
 
-server = SimpleServer.serve()
+using PurlinLineAPI
+server = PurlinLineAPI.serve()
