@@ -104,7 +104,9 @@ function serve()
   return server
 end
 
+
+
 end # module PurlinLineAPI
 
-using PurlinLineAPI
-server = PurlinLineAPI.serve()
+# using PurlinLineAPI
+# server = PurlinLineAPI.serve()
