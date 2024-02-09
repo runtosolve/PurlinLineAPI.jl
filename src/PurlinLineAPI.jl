@@ -20,7 +20,7 @@ mutable struct PurlinLineData
   frame_flange_width::Float64
   roof_slope::Float64
   deck_type::String
-  loading_directcion::String
+  loading_direction::String
 
   PurlinLineData() = new()
 
