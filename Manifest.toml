@@ -2,7 +2,7 @@
 
 julia_version = "1.10.0"
 manifest_format = "2.0"
-project_hash = "52ae9aea0ad3dead3d316224567b958a3f529967"
+project_hash = "38817130759cdfb848db133b3f5c856321015dc0"
 
 [[deps.AISIS100]]
 deps = ["CSV", "DataFrames", "LinearAlgebra", "Statistics", "Unitful"]

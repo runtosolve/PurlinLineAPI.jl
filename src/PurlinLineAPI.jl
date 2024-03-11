@@ -2,6 +2,7 @@ module PurlinLineAPI
 
 using HTTP, JSON3, Sockets, StructTypes
 using Pkg, CSV, DataFrames, PurlinLine
+using UUIDs
 
 const CORS_OPT_HEADERS = [
     "Access-Control-Allow-Origin" => "https://www.runtosolve.com",
@@ -21,6 +22,7 @@ mutable struct PurlinLineData
   roof_slope::Float64
   deck_type::String
   loading_direction::String
+  generate_report::Bool
 
   PurlinLineData() = new()
 
@@ -32,6 +34,7 @@ mutable struct PurlinLineOutput
   failure_location::Float64
   input_z::Vector{Float64}
   output_v::Vector{Float64}
+  report_id::String
 
   PurlinLineOutput() = new()
 end
@@ -53,6 +56,7 @@ function runAnalysis(data::PurlinLineData)
   roof_slope = data.roof_slope
   deck_type = data.deck_type
   loading_direction = data.loading_direction
+  generate_report = data.generate_report
   
   analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment, loading_direction);
   
@@ -62,6 +66,12 @@ function runAnalysis(data::PurlinLineData)
   output.failure_location = analysisResult.failure_location
   output.input_z = analysisResult.model.inputs.z
   output.output_v = analysisResult.model.outputs.v
+  
+  if (generate_report)
+    output.report_id = string(uuid4()) # replace with actual report generation function
+  else
+    output.report_id = ""
+  end
 
   return output
 
@@ -78,26 +88,15 @@ function CorsMiddleware(handler)
   
 end
 
-function getMessage(req::HTTP.Request)
-  msg = Dict([("id", "xyzabc"), ("value", "success")])
-  return HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(msg))
-end
-
 function submitJob(req::HTTP.Request)
   data = JSON3.read(req.body, PurlinLineData)
   output = runAnalysis(data)
   return HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(output))
 end
 
-function testPost(req::HTTP.Request)
-  data = JSON3.read(req.body)
-  return HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(data))
-end
-
 const router = HTTP.Router()
-HTTP.register!(router, "GET", "/api/msg", getMessage)
 HTTP.register!(router, "POST", "/api/submit_job", submitJob)
-HTTP.register!(router, "POST", "/api/test_post", testPost)
+
 
 function serve()
   server = HTTP.serve!(router |> CorsMiddleware, Sockets.localhost, 8080)
