@@ -1,6 +1,6 @@
 name = "PurlinLineAPI"
 uuid = "8b5721dd-6d21-4f06-a05c-d5e8b8c524b4"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["rts "]
 
 [deps]
