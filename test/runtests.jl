@@ -1,6 +1,6 @@
 import PurlinLineAPI
 
-data = PurlinLineAPI.PurlinLineData()
+data = PurlinLineAPI.RunPurlinLine()
 data.purlin_types = ["Z8x2.5 060"]
 data.purlin_spans = [
   16,
@@ -23,4 +23,4 @@ data.deck_type = "SSR Ultra-Dek 18 in. 24 ga"
 data.loading_direction = "uplift"
 data.generate_report = false
 
-PurlinLineAPI.runAnalysis(data)
+PurlinLineAPI.calculate(data)

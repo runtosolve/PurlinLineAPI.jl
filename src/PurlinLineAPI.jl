@@ -1,18 +1,11 @@
 module PurlinLineAPI
 
-using HTTP, JSON3, Sockets, StructTypes
-using Pkg, CSV, DataFrames, PurlinLine
-using UUIDs
+using CSV, DataFrames, PurlinLine, StructTypes, UUIDs
 
-const CORS_OPT_HEADERS = [
-    "Access-Control-Allow-Origin" => "https://www.runtosolve.com",
-    "Access-Control-Allow-Methods" => "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers" => "*", # without credentials needed
-]
-const CORS_RES_HEADERS = ["Access-Control-Allow-Origin" => "https://www.runtosolve.com"]
+export RunPurlinLine, PurlinLineResult, calculate
 
-# Define input struct
-mutable struct PurlinLineData
+# Input payload for a purlin line calculation.
+mutable struct RunPurlinLine
   purlin_types::Vector{String}
   purlin_spans::Vector{Float64}
   purlin_size_span_assignment::Vector{Int}
@@ -24,11 +17,11 @@ mutable struct PurlinLineData
   loading_direction::String
   generate_report::Bool
 
-  PurlinLineData() = new()
-
+  RunPurlinLine() = new()
 end
 
-mutable struct PurlinLineOutput
+# Result of a purlin line calculation.
+mutable struct PurlinLineResult
   applied_pressure::Float64
   failure_limit_state::String
   failure_location::Float64
@@ -36,76 +29,53 @@ mutable struct PurlinLineOutput
   output_v::Vector{Float64}
   report_id::String
 
-  PurlinLineOutput() = new()
+  PurlinLineResult() = new()
 end
 
-StructTypes.StructType(::Type{PurlinLineData}) = StructTypes.Mutable()
+# Register the structs with StructTypes so consumers (e.g. Oxygen.jl) can
+# deserialize requests into RunPurlinLine and serialize PurlinLineResult.
+StructTypes.StructType(::Type{RunPurlinLine}) = StructTypes.Mutable()
+StructTypes.StructType(::Type{PurlinLineResult}) = StructTypes.Mutable()
 
-purlin_data_path = joinpath(pkgdir(PurlinLine), "database", "Purlins.csv")
-deck_data_path = joinpath(pkgdir(PurlinLine), "database", "Existing_Deck.csv")
-purlin_data = CSV.read(purlin_data_path, DataFrame);
-deck_data = CSV.read(deck_data_path, DataFrame);
+const purlin_data_path = joinpath(pkgdir(PurlinLine), "database", "Purlins.csv")
+const deck_data_path = joinpath(pkgdir(PurlinLine), "database", "Existing_Deck.csv")
+const purlin_data = CSV.read(purlin_data_path, DataFrame)
+const deck_data = CSV.read(deck_data_path, DataFrame)
 
-function runAnalysis(data::PurlinLineData)
-  purlin_types = data.purlin_types
-  purlin_spans = data.purlin_spans  #ft
-  purlin_size_span_assignment = data.purlin_size_span_assignment
-  purlin_laps = data.purlin_laps
-  purlin_spacing = data.purlin_spacing
-  frame_flange_width = data.frame_flange_width
-  roof_slope = data.roof_slope
-  deck_type = data.deck_type
-  loading_direction = data.loading_direction
-  generate_report = data.generate_report
-  
-  analysisResult = PurlinLine.UI.calculate_response(purlin_spans, purlin_laps, purlin_spacing, roof_slope, purlin_data, deck_type, deck_data, frame_flange_width, purlin_types, purlin_size_span_assignment, loading_direction);
-  
-  output = PurlinLineOutput()
+"""
+    calculate(data::RunPurlinLine) -> PurlinLineResult
+
+Run the purlin line analysis for the given input and return the result.
+"""
+function calculate(data::RunPurlinLine)::PurlinLineResult
+  analysisResult = PurlinLine.UI.calculate_response(
+    data.purlin_spans,
+    data.purlin_laps,
+    data.purlin_spacing,
+    data.roof_slope,
+    purlin_data,
+    data.deck_type,
+    deck_data,
+    data.frame_flange_width,
+    data.purlin_types,
+    data.purlin_size_span_assignment,
+    data.loading_direction,
+  )
+
+  output = PurlinLineResult()
   output.applied_pressure = analysisResult.applied_pressure
   output.failure_limit_state = analysisResult.failure_limit_state
   output.failure_location = analysisResult.failure_location
   output.input_z = analysisResult.model.inputs.z
   output.output_v = analysisResult.model.outputs.v
-  
-  if (generate_report)
+
+  if data.generate_report
     output.report_id = string(uuid4()) # replace with actual report generation function
   else
     output.report_id = ""
   end
 
   return output
-
 end
-
-function CorsMiddleware(handler)
-  return function(req::HTTP.Request)
-    if HTTP.method(req) == "OPTIONS"
-      return HTTP.Response(200, CORS_OPT_HEADERS)
-    else
-      return handler(req)
-    end
-  end
-  
-end
-
-function submitJob(req::HTTP.Request)
-  data = JSON3.read(req.body, PurlinLineData)
-  output = runAnalysis(data)
-  return HTTP.Response(200, CORS_RES_HEADERS, JSON3.write(output))
-end
-
-const router = HTTP.Router()
-HTTP.register!(router, "POST", "/api/submit_job", submitJob)
-
-
-function serve()
-  server = HTTP.serve!(router |> CorsMiddleware, Sockets.localhost, 8080)
-  return server
-end
-
-
 
 end # module PurlinLineAPI
-
-# using PurlinLineAPI
-# server = PurlinLineAPI.serve()
